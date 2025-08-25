@@ -110,7 +110,6 @@ app.post('/createjp', (req, res) => {
 
   // Update JP mark only (student already exists in stdmark)
   const updateSql = 'UPDATE submark SET JP = ? WHERE ROLL = ?';
-  console.log("vdhbsjk");
   db.query(updateSql, [jp, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
 
@@ -133,7 +132,7 @@ app.post('/createds', (req, res) => {
 
   // Update JP mark only (student already exists in stdmark)
   const updateSql = 'UPDATE submark SET DS = ? WHERE ROLL = ?';
-  console.log("vdhbsjk");
+  
   db.query(updateSql, [ds, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
 
