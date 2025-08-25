@@ -171,8 +171,8 @@ app.delete('/deletejp/:roll', (req, res) => {
 
 app.delete('/deleteds/:roll', (req, res) => {
   const { roll } = req.params;
-  const sql = 'DELETE FROM submark WHERE ROLL = ?';
-  db.query(sql, [roll], (err, result) => {
+  const sql = 'DELETE DS FROM submark WHERE ROLL = ?';
+  db.query(sql, [ds,roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
     res.json({ message: 'Deleted successfully' });
