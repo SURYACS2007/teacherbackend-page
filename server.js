@@ -134,7 +134,7 @@ app.post('/createds', (req, res) => {
   // Update JP mark only (student already exists in stdmark)
   const updateSql = 'UPDATE submark SET DS = ? WHERE ROLL = ?';
   console.log("vdhbsjk");
-  db.query(updateSql, [jp, roll], (err, result) => {
+  db.query(updateSql, [ds, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
 
     if (result.affectedRows === 0) {
