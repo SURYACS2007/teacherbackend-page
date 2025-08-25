@@ -52,6 +52,21 @@ app.post('/create', (req, res) => {
   });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Get JP students from submark
 app.get('/jpstudent', (req, res) => {
   const sql = 'SELECT * FROM submark ORDER BY NAME';
@@ -61,8 +76,31 @@ app.get('/jpstudent', (req, res) => {
   });
 });
 
-// ✅ Create or Update JP entry
-// ✅ Create or Update only JP mark
+app.get('/dsstudent', (req, res) => {
+  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(data);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post('/createjp', (req, res) => {
   const { roll, jp } = req.body;
 
@@ -85,6 +123,41 @@ app.post('/createjp', (req, res) => {
 });
 
 
+
+app.post('/createds', (req, res) => {
+  const { roll, ds } = req.body;
+
+  if (!roll || ds === undefined) {
+    return res.status(400).json({ error: 'Roll and DS are required' });
+  }
+
+  // Update JP mark only (student already exists in stdmark)
+  const updateSql = 'UPDATE submark SET DS = ? WHERE ROLL = ?';
+  console.log("vdhbsjk");
+  db.query(updateSql, [jp, roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Roll not found' });
+    }
+
+    res.json({ message: 'DS mark stored successfully' });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Delete single JP student
 app.delete('/deletejp/:roll', (req, res) => {
   const { roll } = req.params;
@@ -96,6 +169,34 @@ app.delete('/deletejp/:roll', (req, res) => {
   });
 });
 
+
+app.delete('/deleteds/:roll', (req, res) => {
+  const { roll } = req.params;
+  const sql = 'DELETE FROM submark WHERE ROLL = ?';
+  db.query(sql, [roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete failed' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
+    res.json({ message: 'Deleted successfully' });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Delete all JP students
 app.delete('/delete-alljp', (req, res) => {
   const sql = 'DELETE FROM submark';
@@ -104,6 +205,25 @@ app.delete('/delete-alljp', (req, res) => {
     res.json({ message: 'All JP students deleted successfully' });
   });
 });
+
+app.delete('/delete-allds', (req, res) => {
+  const sql = 'DELETE FROM submark';
+  db.query(sql, (err) => {
+    if (err) return res.status(500).json({ error: 'Delete all failed' });
+    res.json({ message: 'All DS students deleted successfully' });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
 
 // Global error handler
 app.use((err, req, res, next) => {
