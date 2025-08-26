@@ -171,6 +171,27 @@ app.post('/createvccf', (req, res) => {
   });
 });
 
+app.post('/createdaa', (req, res) => {
+  const { roll, daa } = req.body;
+
+  if (!roll || daa === undefined) {
+    return res.status(400).json({ error: 'Roll and VCCF are required' });
+  }
+
+  // Update JP mark only (student already exists in stdmark)
+  const updateSql = 'UPDATE submark SET DAA = ? WHERE ROLL = ?';
+  
+  db.query(updateSql, [daa, roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Roll not found' });
+    }
+
+    res.json({ message: 'DAA mark stored successfully' });
+  });
+});
+
 
 
 
@@ -257,6 +278,29 @@ app.delete('/deletevccf/:roll', (req, res) => {
 });
 
 
+app.delete('/deletedaa/:roll', (req, res) => {
+  const { roll } = req.params;
+
+  // First update JP = NULL
+  const sqlUpdate = 'UPDATE submark SET DAA = NULL WHERE ROLL = ?';
+  db.query(sqlUpdate, [roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete failed' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
+
+    // Then fetch the updated row and return it
+    const sqlSelect = 'SELECT ROLL, NAME, DAA FROM submark WHERE ROLL = ?';
+    db.query(sqlSelect, [roll], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Fetch failed' });
+
+      res.json({
+        message: 'DAA mark deleted (set to NULL) successfully',
+        student: rows[0]   // return the updated student row
+      });
+    });
+  });
+});
+
+
 
 
 
@@ -302,6 +346,16 @@ app.delete('/delete-allvccf', (req, res) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
 
     res.json({ message: 'All VCCF marks set to NULL successfully' });
+  });
+});
+
+app.delete('/delete-alldaa', (req, res) => {
+  const sql = 'UPDATE submark SET DAA = NULL';
+
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete all failed' });
+
+    res.json({ message: 'All DAA marks set to NULL successfully' });
   });
 });
 
