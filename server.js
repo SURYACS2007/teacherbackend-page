@@ -60,6 +60,11 @@ app.post('/create', (req, res) => {
 
 
 
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -90,6 +95,20 @@ app.get('/vccfstudent', (req, res) => {
     res.json(data);
   });
 });
+app.get('/daastudent', (req, res) => {
+  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(data);
+  });
+});
+app.get('/dpcostudent', (req, res) => {
+  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(data);
+  });
+});
 
 
 
@@ -99,7 +118,11 @@ app.get('/vccfstudent', (req, res) => {
 
 
 
-
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -192,6 +215,36 @@ app.post('/createdaa', (req, res) => {
   });
 });
 
+app.post('/createdpco', (req, res) => {
+  const { roll, dpco } = req.body;
+
+  if (!roll || dpco === undefined) {
+    return res.status(400).json({ error: 'Roll and DPCO are required' });
+  }
+
+  // Update JP mark only (student already exists in stdmark)
+  const updateSql = 'UPDATE submark SET DPCO = ? WHERE ROLL = ?';
+  
+  db.query(updateSql, [dpco, roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Roll not found' });
+    }
+
+    res.json({ message: 'DPCO mark stored successfully' });
+  });
+});
+
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -200,18 +253,9 @@ app.post('/createdaa', (req, res) => {
 
 
 
-
-
-
-
-// Delete single JP student
-// Set JP mark to NULL for a student
-// Delete JP mark only (set JP to NULL, not entire row)
-// Delete JP mark only (set JP to NULL, return updated student)
 app.delete('/deletejp/:roll', (req, res) => {
   const { roll } = req.params;
 
-  // First update JP = NULL
   const sqlUpdate = 'UPDATE submark SET JP = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
@@ -301,6 +345,37 @@ app.delete('/deletedaa/:roll', (req, res) => {
 });
 
 
+app.delete('/deletedpco/:roll', (req, res) => {
+  const { roll } = req.params;
+
+  // First update JP = NULL
+  const sqlUpdate = 'UPDATE submark SET DPCO = NULL WHERE ROLL = ?';
+  db.query(sqlUpdate, [roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete failed' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
+
+    // Then fetch the updated row and return it
+    const sqlSelect = 'SELECT ROLL, NAME, DPCO FROM submark WHERE ROLL = ?';
+    db.query(sqlSelect, [roll], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Fetch failed' });
+
+      res.json({
+        message: 'DPCO mark deleted (set to NULL) successfully',
+        student: rows[0]   // return the updated student row
+      });
+    });
+  });
+});
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -313,11 +388,6 @@ app.delete('/deletedaa/:roll', (req, res) => {
 
 
 
-
-
-
-// Delete all JP students
-// Delete all JP marks (set JP = NULL for all students)
 app.delete('/delete-alljp', (req, res) => {
   const sql = 'UPDATE submark SET JP = NULL';
 
@@ -359,8 +429,26 @@ app.delete('/delete-alldaa', (req, res) => {
   });
 });
 
+app.delete('/delete-alldpco', (req, res) => {
+  const sql = 'UPDATE submark SET DPCO = NULL';
+
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete all failed' });
+
+    res.json({ message: 'All DPCO marks set to NULL successfully' });
+  });
+});
 
 
+
+
+
+
+//------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------
 
 
 
