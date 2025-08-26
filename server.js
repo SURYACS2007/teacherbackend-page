@@ -169,6 +169,8 @@ app.delete('/deletejp/:roll', (req, res) => {
 });
 
 
+
+
 app.delete('/deleteds/:roll', (req, res) => {
   const { roll } = req.params;
   const sql = 'DELETE FROM submark WHERE ROLL = ?';
