@@ -227,11 +227,12 @@ app.delete('/delete-alljp', (req, res) => {
 
 
 app.delete('/delete-allds', (req, res) => {
-  
-  const sql = 'DELETE JP FROM submark';
-  db.query(sql,[jp], (err) => {
+  const sql = 'UPDATE submark SET DS = NULL';
+
+  db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
-    res.json({ message: 'All DS students deleted successfully' });
+
+    res.json({ message: 'All DS marks set to NULL successfully' });
   });
 });
 
