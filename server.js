@@ -158,13 +158,16 @@ app.post('/createds', (req, res) => {
 
 
 // Delete single JP student
-app.delete('/deletejp/:roll', (req, res) => {
+// Set JP mark to NULL for a student
+app.put('/deletejp/:roll', (req, res) => {
   const { roll } = req.params;
-  const sql = 'DELETE FROM submark WHERE ROLL = ?';
+  const sql = 'UPDATE submark SET JP = NULL WHERE ROLL = ?';
+  
   db.query(sql, [roll], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Delete failed' });
+    if (err) return res.status(500).json({ error: 'Update failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
-    res.json({ message: 'Deleted successfully' });
+    
+    res.json({ message: 'JP mark set to NULL successfully' });
   });
 });
 
