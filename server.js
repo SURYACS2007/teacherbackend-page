@@ -214,13 +214,17 @@ app.delete('/deleteds/:roll', (req, res) => {
 
 
 // Delete all JP students
+// Delete all JP marks (set JP = NULL for all students)
 app.delete('/delete-alljp', (req, res) => {
-  const sql = 'DELETE FROM submark';
-  db.query(sql, (err) => {
+  const sql = 'UPDATE submark SET JP = NULL';
+
+  db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
-    res.json({ message: 'All JP students deleted successfully' });
+
+    res.json({ message: 'All JP marks set to NULL successfully' });
   });
 });
+
 
 app.delete('/delete-allds', (req, res) => {
   
