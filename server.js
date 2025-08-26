@@ -83,7 +83,13 @@ app.get('/dsstudent', (req, res) => {
     res.json(data);
   });
 });
-
+app.get('/vccfstudent', (req, res) => {
+  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  db.query(sql, (err, data) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(data);
+  });
+});
 
 
 
@@ -144,6 +150,26 @@ app.post('/createds', (req, res) => {
   });
 });
 
+app.post('/createvccf', (req, res) => {
+  const { roll, vccf } = req.body;
+
+  if (!roll || vccf === undefined) {
+    return res.status(400).json({ error: 'Roll and VCCF are required' });
+  }
+
+  // Update JP mark only (student already exists in stdmark)
+  const updateSql = 'UPDATE submark SET VCCF = ? WHERE ROLL = ?';
+  
+  db.query(updateSql, [vccf, roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Roll not found' });
+    }
+
+    res.json({ message: 'VCCF mark stored successfully' });
+  });
+});
 
 
 
@@ -188,14 +214,47 @@ app.delete('/deletejp/:roll', (req, res) => {
 
 app.delete('/deleteds/:roll', (req, res) => {
   const { roll } = req.params;
-  const sql = 'DELETE FROM submark WHERE ROLL = ?';
-  db.query(sql, [roll], (err, result) => {
+
+  // First update JP = NULL
+  const sqlUpdate = 'UPDATE submark SET DS = NULL WHERE ROLL = ?';
+  db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
-    res.json({ message: 'Deleted successfully' });
+
+    // Then fetch the updated row and return it
+    const sqlSelect = 'SELECT ROLL, NAME, DS FROM submark WHERE ROLL = ?';
+    db.query(sqlSelect, [roll], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Fetch failed' });
+
+      res.json({
+        message: 'DS mark deleted (set to NULL) successfully',
+        student: rows[0]   // return the updated student row
+      });
+    });
   });
 });
 
+app.delete('/deletevccf/:roll', (req, res) => {
+  const { roll } = req.params;
+
+  // First update JP = NULL
+  const sqlUpdate = 'UPDATE submark SET VCCF = NULL WHERE ROLL = ?';
+  db.query(sqlUpdate, [roll], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete failed' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
+
+    // Then fetch the updated row and return it
+    const sqlSelect = 'SELECT ROLL, NAME, VCCF FROM submark WHERE ROLL = ?';
+    db.query(sqlSelect, [roll], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Fetch failed' });
+
+      res.json({
+        message: 'VCCF mark deleted (set to NULL) successfully',
+        student: rows[0]   // return the updated student row
+      });
+    });
+  });
+});
 
 
 
@@ -236,9 +295,15 @@ app.delete('/delete-allds', (req, res) => {
   });
 });
 
+app.delete('/delete-allvccf', (req, res) => {
+  const sql = 'UPDATE submark SET VCCF = NULL';
 
+  db.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: 'Delete all failed' });
 
-
+    res.json({ message: 'All VCCF marks set to NULL successfully' });
+  });
+});
 
 
 
