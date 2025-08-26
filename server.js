@@ -160,15 +160,26 @@ app.post('/createds', (req, res) => {
 // Delete single JP student
 // Set JP mark to NULL for a student
 // Delete JP mark only (set JP to NULL, not entire row)
+// Delete JP mark only (set JP to NULL, return updated student)
 app.delete('/deletejp/:roll', (req, res) => {
   const { roll } = req.params;
-  const sql = 'UPDATE submark SET JP = NULL WHERE ROLL = ?';
 
-  db.query(sql, [roll], (err, result) => {
+  // First update JP = NULL
+  const sqlUpdate = 'UPDATE submark SET JP = NULL WHERE ROLL = ?';
+  db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
-    res.json({ message: 'JP mark deleted (set to NULL) successfully' });
+    // Then fetch the updated row and return it
+    const sqlSelect = 'SELECT ROLL, NAME, JP FROM submark WHERE ROLL = ?';
+    db.query(sqlSelect, [roll], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Fetch failed' });
+
+      res.json({
+        message: 'JP mark deleted (set to NULL) successfully',
+        student: rows[0]   // return the updated student row
+      });
+    });
   });
 });
 
