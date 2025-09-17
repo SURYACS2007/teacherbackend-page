@@ -72,9 +72,8 @@ app.post('/create', (req, res) => {
 
 
 
-// Get JP students from submark
 app.get('/jpstudent', (req, res) => {
-  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  const sql = 'SELECT * FROM stdmark ORDER BY NAME';
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(data);
@@ -82,28 +81,28 @@ app.get('/jpstudent', (req, res) => {
 });
 
 app.get('/dsstudent', (req, res) => {
-  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  const sql = 'SELECT * FROM stdmark ORDER BY NAME';
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(data);
   });
 });
 app.get('/vccfstudent', (req, res) => {
-  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  const sql = 'SELECT * FROM stdmark ORDER BY NAME';
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(data);
   });
 });
 app.get('/daastudent', (req, res) => {
-  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  const sql = 'SELECT * FROM stdmark ORDER BY NAME';
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(data);
   });
 });
 app.get('/dpcostudent', (req, res) => {
-  const sql = 'SELECT * FROM submark ORDER BY NAME';
+  const sql = 'SELECT * FROM stdmark ORDER BY NAME';
   db.query(sql, (err, data) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(data);
@@ -138,7 +137,7 @@ app.post('/createjp', (req, res) => {
   }
 
   // Update JP mark only (student already exists in stdmark)
-  const updateSql = 'UPDATE submark SET JP = ? WHERE ROLL = ?';
+  const updateSql = 'UPDATE stdmark SET JP = ? WHERE ROLL = ?';
   db.query(updateSql, [jp, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
 
@@ -160,7 +159,7 @@ app.post('/createds', (req, res) => {
   }
 
   // Update JP mark only (student already exists in stdmark)
-  const updateSql = 'UPDATE submark SET DS = ? WHERE ROLL = ?';
+  const updateSql = 'UPDATE stdmark SET DS = ? WHERE ROLL = ?';
   
   db.query(updateSql, [ds, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
@@ -181,7 +180,7 @@ app.post('/createvccf', (req, res) => {
   }
 
   // Update JP mark only (student already exists in stdmark)
-  const updateSql = 'UPDATE submark SET VCCF = ? WHERE ROLL = ?';
+  const updateSql = 'UPDATE stdmark SET VCCF = ? WHERE ROLL = ?';
   
   db.query(updateSql, [vccf, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
@@ -202,7 +201,7 @@ app.post('/createdaa', (req, res) => {
   }
 
   // Update JP mark only (student already exists in stdmark)
-  const updateSql = 'UPDATE submark SET DAA = ? WHERE ROLL = ?';
+  const updateSql = 'UPDATE stdmark SET DAA = ? WHERE ROLL = ?';
   
   db.query(updateSql, [daa, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
@@ -223,7 +222,7 @@ app.post('/createdpco', (req, res) => {
   }
 
   // Update JP mark only (student already exists in stdmark)
-  const updateSql = 'UPDATE submark SET DPCO = ? WHERE ROLL = ?';
+  const updateSql = 'UPDATE stdmark SET DPCO = ? WHERE ROLL = ?';
   
   db.query(updateSql, [dpco, roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Database error' });
@@ -256,13 +255,13 @@ app.post('/createdpco', (req, res) => {
 app.delete('/deletejp/:roll', (req, res) => {
   const { roll } = req.params;
 
-  const sqlUpdate = 'UPDATE submark SET JP = NULL WHERE ROLL = ?';
+  const sqlUpdate = 'UPDATE stdmark SET JP = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
     // Then fetch the updated row and return it
-    const sqlSelect = 'SELECT ROLL, NAME, JP FROM submark WHERE ROLL = ?';
+    const sqlSelect = 'SELECT ROLL, NAME, JP FROM stdmark WHERE ROLL = ?';
     db.query(sqlSelect, [roll], (err, rows) => {
       if (err) return res.status(500).json({ error: 'Fetch failed' });
 
@@ -281,13 +280,13 @@ app.delete('/deleteds/:roll', (req, res) => {
   const { roll } = req.params;
 
   // First update JP = NULL
-  const sqlUpdate = 'UPDATE submark SET DS = NULL WHERE ROLL = ?';
+  const sqlUpdate = 'UPDATE stdmark SET DS = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
     // Then fetch the updated row and return it
-    const sqlSelect = 'SELECT ROLL, NAME, DS FROM submark WHERE ROLL = ?';
+    const sqlSelect = 'SELECT ROLL, NAME, DS FROM stdmark WHERE ROLL = ?';
     db.query(sqlSelect, [roll], (err, rows) => {
       if (err) return res.status(500).json({ error: 'Fetch failed' });
 
@@ -303,13 +302,13 @@ app.delete('/deletevccf/:roll', (req, res) => {
   const { roll } = req.params;
 
   // First update JP = NULL
-  const sqlUpdate = 'UPDATE submark SET VCCF = NULL WHERE ROLL = ?';
+  const sqlUpdate = 'UPDATE stdmark SET VCCF = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
     // Then fetch the updated row and return it
-    const sqlSelect = 'SELECT ROLL, NAME, VCCF FROM submark WHERE ROLL = ?';
+    const sqlSelect = 'SELECT ROLL, NAME, VCCF FROM stdmark WHERE ROLL = ?';
     db.query(sqlSelect, [roll], (err, rows) => {
       if (err) return res.status(500).json({ error: 'Fetch failed' });
 
@@ -326,13 +325,13 @@ app.delete('/deletedaa/:roll', (req, res) => {
   const { roll } = req.params;
 
   // First update JP = NULL
-  const sqlUpdate = 'UPDATE submark SET DAA = NULL WHERE ROLL = ?';
+  const sqlUpdate = 'UPDATE stdmark SET DAA = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
     // Then fetch the updated row and return it
-    const sqlSelect = 'SELECT ROLL, NAME, DAA FROM submark WHERE ROLL = ?';
+    const sqlSelect = 'SELECT ROLL, NAME, DAA FROM stdmark WHERE ROLL = ?';
     db.query(sqlSelect, [roll], (err, rows) => {
       if (err) return res.status(500).json({ error: 'Fetch failed' });
 
@@ -349,13 +348,13 @@ app.delete('/deletedpco/:roll', (req, res) => {
   const { roll } = req.params;
 
   // First update JP = NULL
-  const sqlUpdate = 'UPDATE submark SET DPCO = NULL WHERE ROLL = ?';
+  const sqlUpdate = 'UPDATE stdmark SET DPCO = NULL WHERE ROLL = ?';
   db.query(sqlUpdate, [roll], (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete failed' });
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Student not found' });
 
     // Then fetch the updated row and return it
-    const sqlSelect = 'SELECT ROLL, NAME, DPCO FROM submark WHERE ROLL = ?';
+    const sqlSelect = 'SELECT ROLL, NAME, DPCO FROM stdmark WHERE ROLL = ?';
     db.query(sqlSelect, [roll], (err, rows) => {
       if (err) return res.status(500).json({ error: 'Fetch failed' });
 
@@ -389,7 +388,7 @@ app.delete('/deletedpco/:roll', (req, res) => {
 
 
 app.delete('/delete-alljp', (req, res) => {
-  const sql = 'UPDATE submark SET JP = NULL';
+  const sql = 'UPDATE stdmark SET JP = NULL';
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
@@ -400,7 +399,7 @@ app.delete('/delete-alljp', (req, res) => {
 
 
 app.delete('/delete-allds', (req, res) => {
-  const sql = 'UPDATE submark SET DS = NULL';
+  const sql = 'UPDATE stdmark SET DS = NULL';
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
@@ -410,7 +409,7 @@ app.delete('/delete-allds', (req, res) => {
 });
 
 app.delete('/delete-allvccf', (req, res) => {
-  const sql = 'UPDATE submark SET VCCF = NULL';
+  const sql = 'UPDATE stdmark SET VCCF = NULL';
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
@@ -420,7 +419,7 @@ app.delete('/delete-allvccf', (req, res) => {
 });
 
 app.delete('/delete-alldaa', (req, res) => {
-  const sql = 'UPDATE submark SET DAA = NULL';
+  const sql = 'UPDATE stdmark SET DAA = NULL';
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
@@ -430,7 +429,7 @@ app.delete('/delete-alldaa', (req, res) => {
 });
 
 app.delete('/delete-alldpco', (req, res) => {
-  const sql = 'UPDATE submark SET DPCO = NULL';
+  const sql = 'UPDATE stdmark SET DPCO = NULL';
 
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ error: 'Delete all failed' });
